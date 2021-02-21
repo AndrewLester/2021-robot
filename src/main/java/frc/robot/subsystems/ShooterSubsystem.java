@@ -38,19 +38,22 @@ public class ShooterSubsystem extends SubsystemBase {
             Ultrasonic ballSensor) {
         this.shooterMotor1 = shooterMotor1;
         this.shooterMotor2 = shooterMotor2;
+
+        this.shooterMotor1.restoreFactoryDefaults();
+        this.shooterMotor2.restoreFactoryDefaults();
         this.shooterSolenoid = shooterSolenoid;
         this.shooterController = shooterMotor1.getPIDController();
         this.shooterEncoder = encoder;
 
         this.shooterController.setFF(0.00025111);
         this.shooterController.setP(0.000024511);
-        p.setDefaultDouble(0);
+        p.setDefaultDouble(this.shooterController.getP());
         p.addListener(
                 notification -> {
                     this.shooterController.setP(notification.value.getDouble());
                 },
                 EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-        ff.setDefaultDouble(0);
+        ff.setDefaultDouble(this.shooterController.getFF());
         ff.addListener(
                 notification -> {
                     this.shooterController.setFF(notification.value.getDouble());

@@ -199,9 +199,8 @@ public class RobotContainer {
             () -> driveSubsystem.drive(-leftJoystick.getY() * 0.7, rightJoystick.getX() * 0.7),
             driveSubsystem));
 
-        btnLauncherSolenoid.whenPressed(
-            new AutomaticShootCommand(TARGET_VELOCITY, NUM_BALLS_LOADED, shooterSubsystem)
-        );
+        btnLauncherSolenoid.whenPressed(new InstantCommand(() -> shooterSubsystem.activatePiston()))
+            .whenInactive(new InstantCommand(() -> shooterSubsystem.lowerPiston()));
 
         btnIntakeSolenoid.whenPressed(new InstantCommand(intakeSubsystem::extend, intakeSubsystem))
         .whenInactive(new InstantCommand(intakeSubsystem::retract, intakeSubsystem));
@@ -211,8 +210,8 @@ public class RobotContainer {
         btnIntakeIn.whenHeld(new InstantCommand(() -> intakeSubsystem.spin(-0.5, -0.7), intakeSubsystem))
             .whenInactive(new InstantCommand(() -> intakeSubsystem.spin(0, 0), intakeSubsystem), true);
 
-        // btnLauncherMotor.whenHeld(new InstantCommand(() -> shooterSubsystem.shootVelocity(6000), shooterSubsystem))
-            // .whenInactive(new InstantCommand(() -> shooterSubsystem.shootVoltage(0), shooterSubsystem), true); 
+        btnLauncherMotor.whenHeld(new InstantCommand(() -> shooterSubsystem.shootVoltage(1), shooterSubsystem))
+            .whenInactive(new InstantCommand(() -> shooterSubsystem.shootVoltage(0), shooterSubsystem), true); 
 
         btnLED.whenPressed(new InstantCommand(() -> ledDriver.set(ledDriver.AUTONOMOUS)));
     } // random pattern -> -.99
