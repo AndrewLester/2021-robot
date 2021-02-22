@@ -27,6 +27,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private final NetworkTableEntry rpm = table.getEntry("filtered_rpm");
     private final NetworkTableEntry ff = table.getEntry("ff");
     private final NetworkTableEntry p = table.getEntry("p");
+    private final NetworkTableEntry current = table.getEntry("current");
+    private final NetworkTableEntry output = table.getEntry("output");
     private final MedianFilter rangeFilter = new MedianFilter(3);
     private double targetRPM = 0;
 
@@ -39,14 +41,10 @@ public class ShooterSubsystem extends SubsystemBase {
         this.shooterMotor1 = shooterMotor1;
         this.shooterMotor2 = shooterMotor2;
 
-        this.shooterMotor1.restoreFactoryDefaults();
-        this.shooterMotor2.restoreFactoryDefaults();
         this.shooterSolenoid = shooterSolenoid;
         this.shooterController = shooterMotor1.getPIDController();
         this.shooterEncoder = encoder;
 
-        this.shooterController.setFF(0.00025111);
-        this.shooterController.setP(0.000024511);
         p.setDefaultDouble(this.shooterController.getP());
         p.addListener(
                 notification -> {
@@ -66,6 +64,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         shooterMotor1.setInverted(true);
         shooterMotor1.setClosedLoopRampRate(1.5);
+        shooterMotor1.setOpenLoopRampRate(1.5);
         shooterMotor2.follow(shooterMotor1);
     }
 
@@ -94,6 +93,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void periodic() {
         rpm.setDouble(this.shooterEncoder.getVelocity());
+        current.setDouble(this.shooterMotor1.getOutputCurrent());
+        output.setDouble(this.shooterMotor1.getAppliedOutput());
+        System.out.println(this.shooterEncoder.getPosition());
         rangeFilter.calculate(ballSensor.getRangeInches());
     }
 

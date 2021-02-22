@@ -222,6 +222,8 @@ public class RobotContainer {
         frontRightMotor.setIdleMode(IdleMode.kBrake);
         rearLeftMotor.setIdleMode(IdleMode.kBrake);
         rearRightMotor.setIdleMode(IdleMode.kBrake);
+
+        this.shooterEncoder.setPosition(0);
     }
 
     /**
