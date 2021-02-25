@@ -45,13 +45,13 @@ public class ShooterSubsystem extends SubsystemBase {
         this.shooterController = shooterMotor1.getPIDController();
         this.shooterEncoder = encoder;
 
-        p.setDefaultDouble(this.shooterController.getP());
+        p.setDefaultDouble(0.0005);
         p.addListener(
                 notification -> {
                     this.shooterController.setP(notification.value.getDouble());
                 },
                 EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-        ff.setDefaultDouble(this.shooterController.getFF());
+        ff.setDefaultDouble(0.00013);
         ff.addListener(
                 notification -> {
                     this.shooterController.setFF(notification.value.getDouble());
@@ -87,7 +87,6 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void shootVoltage(double shooterSpeed) {
-        System.out.println(shooterSpeed);
         shooterMotor1.set(shooterSpeed);
     }
 
@@ -95,7 +94,6 @@ public class ShooterSubsystem extends SubsystemBase {
         rpm.setDouble(this.shooterEncoder.getVelocity());
         current.setDouble(this.shooterMotor1.getOutputCurrent());
         output.setDouble(this.shooterMotor1.getAppliedOutput());
-        System.out.println(this.shooterEncoder.getPosition());
         rangeFilter.calculate(ballSensor.getRangeInches());
     }
 
