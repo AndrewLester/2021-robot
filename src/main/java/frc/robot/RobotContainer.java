@@ -7,22 +7,7 @@
 
 package frc.robot;
 
-import static frc.robot.Constants.BOTTOM_INTAKE_MOTOR;
-import static frc.robot.Constants.CONTROL_PANEL_MOTOR;
-import static frc.robot.Constants.CONTROL_PANEL_SOLENOID_FWD;
-import static frc.robot.Constants.CONTROL_PANEL_SOLENOID_REV;
-import static frc.robot.Constants.FRONT_LEFT_MOTOR;
-import static frc.robot.Constants.FRONT_RIGHT_MOTOR;
-import static frc.robot.Constants.INTAKE_SOLENOID_FWD;
-import static frc.robot.Constants.INTAKE_SOLENOID_REV;
-import static frc.robot.Constants.INTAKE_SWITCH;
-import static frc.robot.Constants.REAR_LEFT_MOTOR;
-import static frc.robot.Constants.REAR_RIGHT_MOTOR;
-import static frc.robot.Constants.SHOOTER_MOTOR_1;
-import static frc.robot.Constants.SHOOTER_SOLENOID_PORT;
-import static frc.robot.Constants.SHOOTER_ULTRASONIC_ECHO;
-import static frc.robot.Constants.SHOOTER_ULTRASONIC_TRIG;
-import static frc.robot.Constants.UPPER_INTAKE_MOTOR;
+import static frc.robot.Constants.*;
 
 import java.util.HashMap;
 import java.util.logging.Logger;
@@ -64,11 +49,11 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AlignWithGyroCommand;
+import frc.robot.commands.AlignWithLimelightCommand;
 import frc.robot.commands.AutomaticShootCommand;
 import frc.robot.commands.ToggleIntakePistonCommand;
-import frc.robot.commands.autonomous.BarrelRacing;
-import frc.robot.commands.autonomous.Bounce;
-import frc.robot.commands.autonomous.Slalom;
+import frc.robot.commands.autonomous.ShootIntakeShootCommand;
+import frc.robot.commands.autonomous.ShootMoveBackwardsCommand;
 import frc.robot.common.ControlPanelColorSensor;
 import frc.robot.common.LEDDriver;
 import frc.robot.common.Odometry;
@@ -251,7 +236,7 @@ public class RobotContainer {
 
         btnLauncherSolenoid
             .whenHeld(
-                new AutomaticShootCommand(0, -1, shooterSubsystem).perpetually()
+                new AutomaticShootCommand(-1, -1, shooterSubsystem).perpetually()
             );
 
         btnLauncherMotor.whenPressed(new InstantCommand(() -> {
@@ -270,22 +255,20 @@ public class RobotContainer {
     
         btnIntakeSolenoid.toggleWhenPressed(new ToggleIntakePistonCommand(intakeSubsystem), true);            
       
-        btnIntakeOut.whileHeld(new InstantCommand(() -> intakeSubsystem.spin(7, 5), intakeSubsystem))
+        btnIntakeOut.whileHeld(new InstantCommand(() -> intakeSubsystem.spin(8, 10.8), intakeSubsystem))
             .whenInactive(new InstantCommand(() -> intakeSubsystem.spin(0, 0), intakeSubsystem), true);
-        btnIntakeIn.whileHeld(new InstantCommand(() -> intakeSubsystem.spin(-7, -5.75), intakeSubsystem))
+        btnIntakeIn.whileHeld(new InstantCommand(() -> intakeSubsystem.spin(-8, -4.2), intakeSubsystem))
             .whenInactive(new InstantCommand(() -> intakeSubsystem.spin(0, 0), intakeSubsystem), true);
 
-        btnIntakeUpperOut.whileHeld(new InstantCommand(() -> intakeSubsystem.spin(7, 0), intakeSubsystem))
+        btnIntakeUpperOut.whileHeld(new InstantCommand(() -> intakeSubsystem.spin(8, 0), intakeSubsystem))
             .whenInactive(new InstantCommand(() -> intakeSubsystem.spin(0, 0), intakeSubsystem), true);
-        btnIntakeUpperIn.whileHeld(new InstantCommand(() -> intakeSubsystem.spin(-7, 0), intakeSubsystem))
+        btnIntakeUpperIn.whileHeld(new InstantCommand(() -> intakeSubsystem.spin(-8, 0), intakeSubsystem))
             .whenInactive(new InstantCommand(() -> intakeSubsystem.spin(0, 0), intakeSubsystem), true);
 
         // btnLauncherMotor.whenHeld(new InstantCommand(() -> shooterSubsystem.shootVelocity(6000), shooterSubsystem))
             // .whenInactive(new InstantCommand(() -> shooterSubsystem.shootVoltage(0), shooterSubsystem), true); 
 
         btnLED.whenPressed(new InstantCommand(() -> ledDriver.set(ledDriver.AUTONOMOUS)));
-
-        btnTestAlign.whenHeld(new AlignWithGyroCommand(navx, driveSubsystem, 0));
 
         btnWinch.whenPressed(new InstantCommand(() -> climbSubsystem.setWinchMotors(0.65)));
         btnWinch.whenReleased(new InstantCommand(() -> climbSubsystem.setWinchMotors(0)));
@@ -296,6 +279,7 @@ public class RobotContainer {
         rightPOV.whenActive(new InstantCommand(() -> climbSubsystem.setHookMotor(0.5)));
         leftPOV.whenActive(new InstantCommand(() -> climbSubsystem.setHookMotor(-0.5)));
         rightPOV.or(leftPOV).whenInactive(new InstantCommand(() -> climbSubsystem.setHookMotor(0)));
+        btnTestAlign.whenHeld(new AlignWithLimelightCommand(limelight, driveSubsystem));
     }
     // random pattern -> -.99
 
@@ -316,7 +300,8 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         odometry.zeroHeading();
-        return new Slalom(driveSubsystem, odometry, limelight, navx);
+        return new ShootIntakeShootCommand(driveSubsystem, odometry, limelight, navx, intakeSubsystem,
+                shooterSubsystem);
     }
 
     public Timer getTimer() {

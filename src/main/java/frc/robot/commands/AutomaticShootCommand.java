@@ -9,7 +9,6 @@ public class AutomaticShootCommand extends CommandBase {
     private final ShooterSubsystem shooterSubsystem;
     private final double targetVel;
     private int ballsLeftToShoot;
-    private long timeOfLastShot = 0;
 
     public AutomaticShootCommand(double targetVel, int ballsLeft, ShooterSubsystem shooterSubsystem) {
         this.targetVel = targetVel;
@@ -31,7 +30,10 @@ public class AutomaticShootCommand extends CommandBase {
     }
 
     public void execute() {
-        if (shooterSubsystem.isBallReady()) {
+        if (targetVel > -1) {
+            shooterSubsystem.shootVelocity(targetVel);
+        }
+        if (shooterSubsystem.isBallReady() && (shooterSubsystem.isAtTargetSpeed() || targetVel < 0)) {
             shooterSubsystem.activatePiston();
         } else if (!shooterSubsystem.isBallReady()) {
             shooterSubsystem.lowerPiston();

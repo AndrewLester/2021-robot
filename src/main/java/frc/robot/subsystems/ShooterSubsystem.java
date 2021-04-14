@@ -48,8 +48,8 @@ public class ShooterSubsystem extends SubsystemBase {
         this.shooterEncoder = encoder;
         this.ledDriver = ledDriver;
 
-        this.shooterController.setFF(0.000105);
-        this.shooterController.setP(0.00053);
+        this.shooterController.setFF(0.00013);
+        this.shooterController.setP(0.0007);
         this.shooterController.setD(0.00025);
 
         Ultrasonic.setAutomaticMode(true);
@@ -94,7 +94,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public boolean isAtTargetSpeed() {
         double currentRPM = this.shooterEncoder.getVelocity();
-        return (Math.abs(currentRPM - targetRPM) <= 150);
+        return (Math.abs(currentRPM - targetRPM) <= 200);
     }
 
     public int getDistanceToRPM(int distance) {

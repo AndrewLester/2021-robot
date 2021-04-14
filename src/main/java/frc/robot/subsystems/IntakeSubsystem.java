@@ -5,6 +5,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -53,6 +54,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void spin(double upperMotorVolts, double bottomMotorVolts) {
         upperIntakeMotor.setVoltage(upperMotorVolts);
-        bottomIntakeMotor.setVoltage(bottomMotorVolts);
+        // Have to use "set" here because the setVoltage method for CANSparkMax uses alternative control
+        bottomIntakeMotor.set(bottomMotorVolts / RobotController.getBatteryVoltage());
     }
 }

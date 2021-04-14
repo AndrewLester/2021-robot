@@ -38,60 +38,54 @@ public class ShootIntakeShootCommand extends SequentialCommandGroup {
             IntakeSubsystem intakeSubsystem,
             ShooterSubsystem shooterSubsystem) {
         this.intakeSubsystem = intakeSubsystem;
-        TrajectoryConfig config =
+        TrajectoryConfig reverseConfig =
                 new TrajectoryConfig(1, Constants.MAX_GENERATION_ACCELERATION)
+                        .setKinematics(DriveSubsystem.KINEMATICS)
                         .addConstraint(
                                 new DifferentialDriveVoltageConstraint(
                                         DriveSubsystem.FEED_FORWARD,
                                         DriveSubsystem.KINEMATICS,
                                         Constants.MAX_GENERATION_VOLTAGE))
                         .setReversed(true);
-        // Generate trajectory inline because Wpilib trajectory API doesn't support PathWeaver reverse
-        // splines
-        Trajectory intakeThreeBalls = generateTrajectory(config);
+        
+        TrajectoryConfig config =
+                new TrajectoryConfig(1, Constants.MAX_GENERATION_ACCELERATION)
+                        .setKinematics(DriveSubsystem.KINEMATICS)
+                        .addConstraint(
+                                new DifferentialDriveVoltageConstraint(
+                                        DriveSubsystem.FEED_FORWARD,
+                                        DriveSubsystem.KINEMATICS,
+                                        Constants.MAX_GENERATION_VOLTAGE));
+
+        Trajectory intakeThreeBalls = TrajectoryGenerator.generateTrajectory(
+                new Pose2d(3.1, 0, Rotation2d.fromDegrees(180)),
+                List.of(),
+                new Pose2d(7.75, 0, Rotation2d.fromDegrees(180)),
+                reverseConfig);
+
+        Trajectory moveForwards = TrajectoryGenerator.generateTrajectory(
+                new Pose2d(7.75, 0, Rotation2d.fromDegrees(180)),
+                List.of(),
+                new Pose2d(6.5, 0, Rotation2d.fromDegrees(190)),
+                config);
 
         addCommands(
                 new InstantCommand(() -> navx.reset()),
-                // new InstantCommand(() -> System.out.println("Start Aligning: " + navx.getAngle())),
-                new ParallelRaceGroup(new AlignWithLimelightCommand(limelight, driveSubsystem)),
+                new AlignWithLimelightCommand(limelight, driveSubsystem),
                 new ParallelRaceGroup(
-                        new RunCommand(() -> shooterSubsystem.shootVoltage(0.5), shooterSubsystem),
-                        new WaitCommand(1)),
-                // new InstantCommand(() -> System.out.println("Limelight post angle: " +
-                // limelight.getYaw())),
-                // new PrintCommand("Start Automatic Shoot"),
-                new ParallelRaceGroup(
-                        new AutomaticShootCommand(0.5, 3, shooterSubsystem).withTimeout(5),
+                        new AutomaticShootCommand(4700, 3, shooterSubsystem).withTimeout(5),
                         new RunCommand(() -> this.intakeSubsystem.spin(-7, 0), this.intakeSubsystem)),
-                // new PrintCommand("Gyro Before Align: " + navx.getAngle()),
                 new InstantCommand(() -> this.intakeSubsystem.spin(0, 0), this.intakeSubsystem),
                 new AlignWithGyroCommand(navx, driveSubsystem, 0),
-                // new PrintCommand("Extend intake piston"),
                 new InstantCommand(this.intakeSubsystem::extend, this.intakeSubsystem),
-                // new PrintCommand("Follow intakeThreeBalls and spin intakeSubsystem"),
                 new ParallelRaceGroup(
                         new FollowTrajectoryCommand(intakeThreeBalls, odometry, driveSubsystem),
                         new RunCommand(() -> this.intakeSubsystem.spin(-7.5, -5.2), this.intakeSubsystem)),
-                // new PrintCommand("Start moveToTrenchFront"),
-                new ChargeAutoCommand(driveSubsystem, 0.6, 0.92),
-                // new PrintCommand("Align w/ limelight"),
+                new FollowTrajectoryCommand(moveForwards, odometry, driveSubsystem, false),
                 new AlignWithLimelightCommand(limelight, driveSubsystem),
                 new ParallelRaceGroup(
-                        new WaitCommand(1),
-                        new RunCommand(() -> shooterSubsystem.shootVoltage(0.625), shooterSubsystem)),
-                // new PrintCommand("Start AutomaticShoot from trench line"),
-                new ParallelRaceGroup(
-                        new AutomaticShootCommand(0.625, 3, shooterSubsystem).withTimeout(5),
+                        new AutomaticShootCommand(4900, 3, shooterSubsystem).withTimeout(5),
                         new RunCommand(() -> this.intakeSubsystem.spin(-7.5, -5), this.intakeSubsystem)));
-        // new PrintCommand("Finished ShootIntakeShootCommand"));
-    }
-
-    private Trajectory generateTrajectory(TrajectoryConfig config) {
-        return TrajectoryGenerator.generateTrajectory(
-                new Pose2d(3.1, 0, Rotation2d.fromDegrees(180)),
-                Collections.<Translation2d>emptyList(),
-                new Pose2d(7.75, 0, Rotation2d.fromDegrees(180)),
-                config);
     }
 
     @Override
