@@ -44,7 +44,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ProxyScheduleCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -65,12 +67,12 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterSubsystem;
 
-
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and button mappings) should be declared here.
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a "declarative" paradigm, very little robot logic should
+ * actually be handled in the {@link Robot} periodic methods (other than the
+ * scheduler calls). Instead, the structure of the robot (including subsystems,
+ * commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
 
@@ -83,16 +85,11 @@ public class RobotContainer {
     private final Field2d field = new Field2d();
     private final Timer timer = new Timer();
 
-
     // DRIVE
-    private final CANSparkMax frontLeftMotor = new CANSparkMax(FRONT_LEFT_MOTOR,
-        MotorType.kBrushless);
-    private final CANSparkMax frontRightMotor = new CANSparkMax(FRONT_RIGHT_MOTOR,
-        MotorType.kBrushless);
-    private final CANSparkMax rearLeftMotor = new CANSparkMax(REAR_LEFT_MOTOR,
-        MotorType.kBrushless);
-    private final CANSparkMax rearRightMotor = new CANSparkMax(REAR_RIGHT_MOTOR,
-        MotorType.kBrushless);
+    private final CANSparkMax frontLeftMotor = new CANSparkMax(FRONT_LEFT_MOTOR, MotorType.kBrushless);
+    private final CANSparkMax frontRightMotor = new CANSparkMax(FRONT_RIGHT_MOTOR, MotorType.kBrushless);
+    private final CANSparkMax rearLeftMotor = new CANSparkMax(REAR_LEFT_MOTOR, MotorType.kBrushless);
+    private final CANSparkMax rearRightMotor = new CANSparkMax(REAR_RIGHT_MOTOR, MotorType.kBrushless);
     private double xSpeedMultiplier = 0.8;
 
     // LED
@@ -112,51 +109,49 @@ public class RobotContainer {
     private final SpeedControllerGroup rightMotors = new SpeedControllerGroup(frontRightMotor, rearRightMotor);
 
     private final DifferentialDrive driveTrain = new DifferentialDrive(leftMotors, rightMotors);
-    private final DriveSubsystem driveSubsystem = new DriveSubsystem(driveTrain, leftMotors, rightMotors, odometry, field, timer);
-    
+    private final DriveSubsystem driveSubsystem = new DriveSubsystem(driveTrain, leftMotors, rightMotors, odometry,
+            field, timer);
 
     // SHOOTER SUBSYSTEM
     private final CANSparkMax shooterMotor1 = new CANSparkMax(SHOOTER_MOTOR_1, MotorType.kBrushed);
     private final CANEncoder shooterEncoder = shooterMotor1.getEncoder(EncoderType.kQuadrature, 8192);
-    private final CANSparkMax shooterMotor2 = new CANSparkMax(frc.robot.Constants.SHOOTER_MOTOR_2,
-        MotorType.kBrushed);
+    private final CANSparkMax shooterMotor2 = new CANSparkMax(frc.robot.Constants.SHOOTER_MOTOR_2, MotorType.kBrushed);
     private final Solenoid shooterSolenoid = new Solenoid(SHOOTER_SOLENOID_PORT);
-    private final Ultrasonic ballSensor = new Ultrasonic(SHOOTER_ULTRASONIC_TRIG,
-        SHOOTER_ULTRASONIC_ECHO, Unit.kInches);
-    private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem(shooterMotor1,
-        shooterMotor2, shooterSolenoid, shooterEncoder, ballSensor, ledDriver);
+    private final Ultrasonic ballSensor = new Ultrasonic(SHOOTER_ULTRASONIC_TRIG, SHOOTER_ULTRASONIC_ECHO,
+            Unit.kInches);
+    private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem(shooterMotor1, shooterMotor2,
+            shooterSolenoid, shooterEncoder, ballSensor, ledDriver);
 
     // INTAKE SUBSYSTEM
     private final WPI_VictorSPX upperIntakeMotor = new WPI_VictorSPX(UPPER_INTAKE_MOTOR);
-    private final CANSparkMax lowerIntakeMotor = new CANSparkMax(BOTTOM_INTAKE_MOTOR,
-        MotorType.kBrushed);
+    private final CANSparkMax lowerIntakeMotor = new CANSparkMax(BOTTOM_INTAKE_MOTOR, MotorType.kBrushed);
     private final DigitalInput intakeSwitch = new DigitalInput(INTAKE_SWITCH);
-    private final DoubleSolenoid intakeSolenoid = new DoubleSolenoid(INTAKE_SOLENOID_FWD,
-        INTAKE_SOLENOID_REV);
-    private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem(upperIntakeMotor,
-        lowerIntakeMotor, intakeSwitch, intakeSolenoid);
+    private final DoubleSolenoid intakeSolenoid = new DoubleSolenoid(INTAKE_SOLENOID_FWD, INTAKE_SOLENOID_REV);
+    private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem(upperIntakeMotor, lowerIntakeMotor,
+            intakeSwitch, intakeSolenoid);
 
     // CONTROL PANEL SUBSYSTEM
     private final ColorMatch colorMatcher = new ColorMatch();
     private final ControlPanelColorSensor colorSensor = new ControlPanelColorSensor(colorMatcher,
-        new ColorSensorV3(Port.kOnboard));
+            new ColorSensorV3(Port.kOnboard));
     private final DoubleSolenoid cpSolenoid = new DoubleSolenoid(CONTROL_PANEL_SOLENOID_FWD,
-        CONTROL_PANEL_SOLENOID_REV);
+            CONTROL_PANEL_SOLENOID_REV);
     private final WPI_VictorSPX cpMotor = new WPI_VictorSPX(CONTROL_PANEL_MOTOR);
-    private final ControlPanelSubsystem controlPanelSubsystem = new ControlPanelSubsystem(
-        cpSolenoid, cpMotor, colorSensor, DriverStation.getInstance());
+    private final ControlPanelSubsystem controlPanelSubsystem = new ControlPanelSubsystem(cpSolenoid, cpMotor,
+            colorSensor, DriverStation.getInstance());
 
     // CLIMB SUBSYSTEM
-        private final SpeedControllerGroup winchMotors = new SpeedControllerGroup(new CANSparkMax(8, MotorType.kBrushless), new CANSparkMax(9, MotorType.kBrushless));
-        private final DoubleSolenoid scissorSolenoid = new DoubleSolenoid(6, 7);
-        private final WPI_VictorSPX hookMotor = new WPI_VictorSPX(3);
+    private final SpeedControllerGroup winchMotors = new SpeedControllerGroup(new CANSparkMax(8, MotorType.kBrushless),
+            new CANSparkMax(9, MotorType.kBrushless));
+    private final DoubleSolenoid scissorSolenoid = new DoubleSolenoid(6, 7);
+    private final WPI_VictorSPX hookMotor = new WPI_VictorSPX(3);
 
-        private final ClimbSubsystem climbSubsystem = new ClimbSubsystem(winchMotors, scissorSolenoid, hookMotor);
-
+    private final ClimbSubsystem climbSubsystem = new ClimbSubsystem(winchMotors, scissorSolenoid, hookMotor);
 
     // TRAJECTORIES
     private final TrajectoryLoader trajectoryLoader = new TrajectoryLoader();
-    // private final HashMap<String, Trajectory> trajectories = trajectoryLoader.loadTrajectories();
+    // private final HashMap<String, Trajectory> trajectories =
+    // trajectoryLoader.loadTrajectories();
 
     // NAVX
     private final AHRS navx = new AHRS(SPI.Port.kMXP);
@@ -176,16 +171,16 @@ public class RobotContainer {
         m_chooser.addOption("Auto Shoot Command 2", automaticShootCommand2);
         SmartDashboard.putData(m_chooser);
 
-        //Configure the button bindings
+        // Configure the button bindings
         configureButtonBindings();
         configureObjects();
     }
 
     /**
-     * Use this method to define your button->command mappings. Buttons can be created by
-     * instantiating a {@link GenericHID} or one of its subclasses ({@link
-     * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-     * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+     * Use this method to define your button->command mappings. Buttons can be
+     * created by instantiating a {@link GenericHID} or one of its subclasses
+     * ({@link edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then
+     * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
 
@@ -200,17 +195,17 @@ public class RobotContainer {
         JoystickButton btnIntakeOut = new JoystickButton(altJoystick, 4);
         JoystickButton btnIntakeUpperIn = new JoystickButton(altJoystick, 5);
         JoystickButton btnIntakeUpperOut = new JoystickButton(altJoystick, 6);
-        JoystickButton btnCPExtend = new JoystickButton(leftJoystick,
-            4); // toggle: use "toggleWhenPressed" method to set command
+        JoystickButton btnCPExtend = new JoystickButton(leftJoystick, 4); // toggle: use "toggleWhenPressed" method to
+                                                                          // set command
         JoystickButton btnWinch = new JoystickButton(altJoystick, 8);
         JoystickButton btnCPMotor = new JoystickButton(leftJoystick, 3);
         JoystickButton btnLauncherMotor = new JoystickButton(altJoystick, 12);
-        JoystickButton btnLauncherIdle = new JoystickButton(altJoystick,
-            10); // toggle: use "toggleWhenPressed" method to set command
+        JoystickButton btnLauncherIdle = new JoystickButton(altJoystick, 10); // toggle: use "toggleWhenPressed" method
+                                                                              // to set command
         JoystickButton btnLauncherMotorDynamic = new JoystickButton(altJoystick, 9);
         JoystickButton btnSlowMovement = new JoystickButton(rightJoystick, 1);
-        JoystickButton btnIntakeSolenoid = new JoystickButton(altJoystick,
-            2); // toggle: use "toggleWhenPressed" method to set command
+        JoystickButton btnIntakeSolenoid = new JoystickButton(altJoystick, 2); // toggle: use "toggleWhenPressed" method
+                                                                               // to set command
         JoystickButton btnScissorExtend = new JoystickButton(altJoystick, 7);
         JoystickButton btnColorSensor = new JoystickButton(leftJoystick, 5);
         JoystickButton btnCPStop = new JoystickButton(leftJoystick, 2);
@@ -224,61 +219,64 @@ public class RobotContainer {
         Trigger rightPOV = new Trigger(() -> altJoystick.getPOV(0) == 90);
         Trigger leftPOV = new Trigger(() -> altJoystick.getPOV(0) == 270);
 
-        driveSubsystem.setDefaultCommand(new RunCommand(
-            () -> {
-                if (robot.isOperatorControlEnabled()) {
-                    driveSubsystem.joystickDrive(-leftJoystick.getY() * xSpeedMultiplier, rightJoystick.getX() * 0.65);
-                } else {
-                    driveSubsystem.drive(0, 0);
-                }
-            },
-            driveSubsystem));
+        driveSubsystem.setDefaultCommand(new RunCommand(() -> {
+            if (robot.isOperatorControlEnabled()) {
+                driveSubsystem.joystickDrive(-leftJoystick.getY() * xSpeedMultiplier, rightJoystick.getX() * 0.65);
+            } else {
+                driveSubsystem.drive(0, 0);
+            }
+        }, driveSubsystem));
 
-        btnLauncherSolenoid
-            .whenHeld(
-                new AutomaticShootCommand(-1, -1, shooterSubsystem).perpetually()
-            );
+        btnLauncherSolenoid.whenHeld(new AutomaticShootCommand(-1, -1, shooterSubsystem).perpetually());
 
         btnLauncherMotor.whenPressed(new InstantCommand(() -> {
             if (limelight.getPlaneDistance() > -1)
-                shooterSubsystem.shootVelocity(shooterSubsystem.getDistanceToRPM((int)(limelight.getPlaneDistance())));
+                shooterSubsystem.shootVelocity(shooterSubsystem.getDistanceToRPM((int) (limelight.getPlaneDistance())));
         }, shooterSubsystem));
         btnLauncherMotor.whenReleased(new InstantCommand(() -> shooterSubsystem.shootVoltage(0), shooterSubsystem));
 
-        btnLauncherIdle
-            .whenPressed(new InstantCommand(() -> shooterSubsystem.shootVelocity(3000), shooterSubsystem))
-            .whenReleased(new InstantCommand(() -> shooterSubsystem.shootVoltage(0), shooterSubsystem));
+        btnLauncherIdle.whenPressed(new InstantCommand(() -> shooterSubsystem.shootVelocity(3000), shooterSubsystem))
+                .whenReleased(new InstantCommand(() -> shooterSubsystem.shootVoltage(0), shooterSubsystem));
 
-        btnBoost
-                .whenPressed(new InstantCommand(() -> xSpeedMultiplier = 0.85))
+        btnBoost.whenPressed(new InstantCommand(() -> xSpeedMultiplier = 0.85))
                 .whenReleased(new InstantCommand(() -> xSpeedMultiplier = 0.8));
-    
-        btnIntakeSolenoid.toggleWhenPressed(new ToggleIntakePistonCommand(intakeSubsystem), true);            
-      
+
+        btnIntakeSolenoid.toggleWhenPressed(new ToggleIntakePistonCommand(intakeSubsystem), true);
+
         btnIntakeOut.whileHeld(new InstantCommand(() -> intakeSubsystem.spin(8, 10.8), intakeSubsystem))
-            .whenInactive(new InstantCommand(() -> intakeSubsystem.spin(0, 0), intakeSubsystem), true);
+                .whenInactive(new InstantCommand(() -> intakeSubsystem.spin(0, 0), intakeSubsystem), true);
         btnIntakeIn.whileHeld(new InstantCommand(() -> intakeSubsystem.spin(-8, -4.2), intakeSubsystem))
-            .whenInactive(new InstantCommand(() -> intakeSubsystem.spin(0, 0), intakeSubsystem), true);
+                .whenInactive(new InstantCommand(() -> intakeSubsystem.spin(0, 0), intakeSubsystem), true);
 
         btnIntakeUpperOut.whileHeld(new InstantCommand(() -> intakeSubsystem.spin(8, 0), intakeSubsystem))
-            .whenInactive(new InstantCommand(() -> intakeSubsystem.spin(0, 0), intakeSubsystem), true);
+                .whenInactive(new InstantCommand(() -> intakeSubsystem.spin(0, 0), intakeSubsystem), true);
         btnIntakeUpperIn.whileHeld(new InstantCommand(() -> intakeSubsystem.spin(-8, 0), intakeSubsystem))
-            .whenInactive(new InstantCommand(() -> intakeSubsystem.spin(0, 0), intakeSubsystem), true);
+                .whenInactive(new InstantCommand(() -> intakeSubsystem.spin(0, 0), intakeSubsystem), true);
 
-        // btnLauncherMotor.whenHeld(new InstantCommand(() -> shooterSubsystem.shootVelocity(6000), shooterSubsystem))
-            // .whenInactive(new InstantCommand(() -> shooterSubsystem.shootVoltage(0), shooterSubsystem), true); 
+        // btnLauncherMotor.whenHeld(new InstantCommand(() ->
+        // shooterSubsystem.shootVelocity(6000), shooterSubsystem))
+        // .whenInactive(new InstantCommand(() -> shooterSubsystem.shootVoltage(0),
+        // shooterSubsystem), true);
 
         btnLED.whenPressed(new InstantCommand(() -> ledDriver.set(ledDriver.AUTONOMOUS)));
 
-        btnWinch.whenPressed(new InstantCommand(() -> climbSubsystem.setWinchMotors(0.65)));
-        btnWinch.whenReleased(new InstantCommand(() -> climbSubsystem.setWinchMotors(0)));
+        btnWinch.whenPressed(new InstantCommand(() -> climbSubsystem.setWinchMotors(1), climbSubsystem));
+        btnWinch.whenReleased(new InstantCommand(() -> climbSubsystem.setWinchMotors(0), climbSubsystem));
 
-        btnScissorExtend.whenPressed(new InstantCommand(() -> climbSubsystem.setScissorSolenoid(DoubleSolenoid.Value.kForward)));
-        btnScissorExtend.whenReleased(new InstantCommand(() -> climbSubsystem.setScissorSolenoid(DoubleSolenoid.Value.kReverse)));
+        btnScissorExtend.toggleWhenPressed(new FunctionalCommand(
+            () -> {
+                climbSubsystem.setScissorSolenoid(DoubleSolenoid.Value.kForward);
+            }, 
+            () -> {},
+            (interrupted) -> {
+                climbSubsystem.setScissorSolenoid(DoubleSolenoid.Value.kReverse);
+            },
+            () -> false
+        ), true);
 
-        rightPOV.whenActive(new InstantCommand(() -> climbSubsystem.setHookMotor(0.5)));
-        leftPOV.whenActive(new InstantCommand(() -> climbSubsystem.setHookMotor(-0.5)));
-        rightPOV.or(leftPOV).whenInactive(new InstantCommand(() -> climbSubsystem.setHookMotor(0)));
+        rightPOV.whenActive(new InstantCommand(() -> hookMotor.set(0.75)));
+        // leftPOV.whenActive(new InstantCommand(() -> climbSubsystem.setHookMotor(-1), climbSubsystem));
+        // rightPOV.or(leftPOV).whenInactive(new InstantCommand(() -> climbSubsystem.setHookMotor(0), climbSubsystem));
         btnTestAlign.whenHeld(new AlignWithLimelightCommand(limelight, driveSubsystem));
     }
     // random pattern -> -.99

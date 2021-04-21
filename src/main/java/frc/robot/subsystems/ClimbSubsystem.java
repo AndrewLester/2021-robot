@@ -23,11 +23,9 @@ public class ClimbSubsystem extends SubsystemBase {
 
     public void setScissorSolenoid(DoubleSolenoid.Value value) {
         scissorSolenoid.set(value);
-        ;
     }
 
     public void setHookMotor(double speed) {
         hookMotor.set(speed);
-        ;
     }
 }
