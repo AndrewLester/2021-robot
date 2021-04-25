@@ -15,7 +15,7 @@ import frc.robot.common.LEDDriver;
 
 public class ShooterSubsystem extends SubsystemBase {
 
-    private static final double BALL_EXISTS_DISTANCE = 3.5; // Inches
+    private static final double BALL_EXISTS_DISTANCE = 5.5; // Inches
     private final CANSparkMax shooterMotor1;
     private final CANSparkMax shooterMotor2;
     private final Solenoid shooterSolenoid;
@@ -27,11 +27,12 @@ public class ShooterSubsystem extends SubsystemBase {
     private final NetworkTable table = ntInstance.getTable("/components/launcher");
     private final NetworkTableEntry rpm = table.getEntry("filtered_rpm");
     private final NetworkTableEntry ntTargetRPM = table.getEntry("target_rpm");
+    private final NetworkTableEntry ballDistance = table.getEntry("ball_distance");
     // private final NetworkTableEntry ff = table.getEntry("ff");
     // private final NetworkTableEntry p = table.getEntry("p");
     private final NetworkTableEntry output = table.getEntry("output");
     private final NetworkTableEntry current = table.getEntry("current");
-    private final MedianFilter rangeFilter = new MedianFilter(3);
+    private final MedianFilter rangeFilter = new MedianFilter(5);
     private double targetRPM = 0;
 
     public ShooterSubsystem(
@@ -50,7 +51,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         this.shooterController.setFF(0.00013);
         this.shooterController.setP(0.0007);
-        this.shooterController.setD(0.00025);
+        this.shooterController.setD(0.0009);
 
         Ultrasonic.setAutomaticMode(true);
         ballSensor.setEnabled(true);
@@ -62,6 +63,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public boolean isBallReady() {
+        System.out.println("DISTANCE: " + rangeFilter.calculate(ballSensor.getRangeInches()));
         return rangeFilter.calculate(ballSensor.getRangeInches()) <= BALL_EXISTS_DISTANCE;
     }
 
@@ -90,6 +92,7 @@ public class ShooterSubsystem extends SubsystemBase {
         output.setDouble(this.shooterMotor1.getAppliedOutput());
         current.setDouble(this.shooterMotor1.getOutputCurrent());
         rangeFilter.calculate(ballSensor.getRangeInches());
+        ballDistance.setDouble(rangeFilter.calculate(ballSensor.getRangeInches()));
     }
 
     public boolean isAtTargetSpeed() {
@@ -97,8 +100,9 @@ public class ShooterSubsystem extends SubsystemBase {
         return (Math.abs(currentRPM - targetRPM) <= 200);
     }
 
-    public int getDistanceToRPM(int distance) {
-        return (int) ((distance * -1.05469) + 4432.2);
+    public double getDistanceToRPM(int distance) {
+        return 4198.345924 / (1 + (8.279009386 * Math.exp(-0.032974783 * distance)));
+        // return (int) ((distance * -1.05469) + 4432.2);
     }
 
     public static class Constants {

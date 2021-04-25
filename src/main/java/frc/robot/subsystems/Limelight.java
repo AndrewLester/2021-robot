@@ -49,7 +49,9 @@ public class Limelight extends SubsystemBase {
                 averagePose = computeAveragePose(averagePose, currentPose);
             }
         }
-        planeDistance.setDouble(getPlaneDistance());
+        double planeDistance = getPlaneDistance();
+        if (planeDistance > -1)
+            this.planeDistance.setDouble(planeDistance);
     }
 
     public double getYaw() {

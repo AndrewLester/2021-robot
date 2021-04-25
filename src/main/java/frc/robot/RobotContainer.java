@@ -298,7 +298,7 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         odometry.zeroHeading();
-        return new ShootIntakeShootCommand(driveSubsystem, odometry, limelight, navx, intakeSubsystem,
+        return new ShootMoveBackwardsCommand(driveSubsystem, odometry, limelight, navx, intakeSubsystem,
                 shooterSubsystem);
     }
 

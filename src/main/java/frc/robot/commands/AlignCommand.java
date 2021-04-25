@@ -10,8 +10,8 @@ import frc.robot.subsystems.DriveSubsystem;
 public abstract class AlignCommand extends CommandBase {
 
     private static final double Ki = 0.00200;
-    private static final double Kd = 0.000004;
-    private static double Kp = 0.01700;
+    private static final double Kd = 0.000006;
+    private static double Kp = 0.0200;
 
     protected final PIDController pid = new PIDController(Kp, Ki, Kd);
     protected final DriveSubsystem driveSubsystem;

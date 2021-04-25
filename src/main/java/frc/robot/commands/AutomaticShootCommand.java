@@ -9,34 +9,42 @@ public class AutomaticShootCommand extends CommandBase {
     private final ShooterSubsystem shooterSubsystem;
     private final double targetVel;
     private int ballsLeftToShoot;
+    private boolean shot = false;
+    private long shotTime = 0;
 
     public AutomaticShootCommand(double targetVel, int ballsLeft, ShooterSubsystem shooterSubsystem) {
         this.targetVel = targetVel;
         this.ballsLeftToShoot = ballsLeft;
         this.shooterSubsystem = shooterSubsystem;
 
-        Trigger ballSensor = new Trigger(shooterSubsystem::isBallReady);
-        ballSensor.whenInactive(new InstantCommand(() -> ballsLeftToShoot--));
         addRequirements(shooterSubsystem);
     }
 
     public void end(boolean interrupted) {
         // shooterSubsystem.shootVoltage(0);
         shooterSubsystem.lowerPiston();
+        System.out.println("Ending with: " + ballsLeftToShoot);
     }
 
     public boolean isFinished() {
-        return ballsLeftToShoot <= 0;
+        return false;
     }
 
     public void execute() {
         if (targetVel > -1) {
             shooterSubsystem.shootVelocity(targetVel);
         }
-        if (shooterSubsystem.isBallReady() && (shooterSubsystem.isAtTargetSpeed() || targetVel < 0)) {
+        System.out.println("IS BALL READY: " + shooterSubsystem.isBallReady());
+        if (!shot && (shooterSubsystem.isAtTargetSpeed() || targetVel < 0)) {
             shooterSubsystem.activatePiston();
-        } else if (!shooterSubsystem.isBallReady()) {
-            shooterSubsystem.lowerPiston();
+            shot = true;
+            shotTime = System.currentTimeMillis();
+        } else if (shot && System.currentTimeMillis() - shotTime < 1500) {
+            if (System.currentTimeMillis() - shotTime > 500) {
+                shooterSubsystem.lowerPiston();
+            }
+        } else if (shot) {
+            shot = false;
         }
     }
 }
