@@ -50,7 +50,7 @@ public class ShooterSubsystem extends SubsystemBase {
         this.ledDriver = ledDriver;
 
         this.shooterController.setFF(0.00013);
-        this.shooterController.setP(0.0007);
+        this.shooterController.setP(0.00067);
         this.shooterController.setD(0.0009);
 
         Ultrasonic.setAutomaticMode(true);

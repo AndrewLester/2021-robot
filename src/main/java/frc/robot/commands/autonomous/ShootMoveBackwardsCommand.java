@@ -60,6 +60,7 @@ public class ShootMoveBackwardsCommand extends SequentialCommandGroup {
         addCommands(
                 new InstantCommand(() -> odometry.reset(intakeThreeBalls.getInitialPose())),
                 new AlignWithLimelightCommand(limelight, driveSubsystem),
+                new RunCommand(() -> shooterSubsystem.shootVelocity(shooterSubsystem.getDistanceToRPM((int) limelight.getPlaneDistance())), shooterSubsystem).withTimeout(2),
                 new AutomaticShootCommand(shooterSubsystem.getDistanceToRPM((int) limelight.getPlaneDistance()), 1, shooterSubsystem).withTimeout(3),
                 new ParallelRaceGroup(
                         new AutomaticShootCommand(shooterSubsystem.getDistanceToRPM((int) limelight.getPlaneDistance()), 2, shooterSubsystem).withTimeout(5),
