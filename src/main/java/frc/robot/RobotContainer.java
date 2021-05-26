@@ -253,12 +253,67 @@ public class RobotContainer {
         btnIntakeUpperIn.whileHeld(new InstantCommand(() -> intakeSubsystem.spin(-8, 0), intakeSubsystem))
                 .whenInactive(new InstantCommand(() -> intakeSubsystem.spin(0, 0), intakeSubsystem), true);
 
+        
+
         // btnLauncherMotor.whenHeld(new InstantCommand(() ->
         // shooterSubsystem.shootVelocity(6000), shooterSubsystem))
         // .whenInactive(new InstantCommand(() -> shooterSubsystem.shootVoltage(0),
         // shooterSubsystem), true);
 
-        btnLED.whenPressed(new InstantCommand(() -> ledDriver.set(ledDriver.AUTONOMOUS)));
+
+
+
+
+
+        // btnLED.whenPressed(new InstantCommand(() -> ledDriver.set(-0.83))); - Aidan
+
+
+
+
+
+
+
+
+        // btnLED.whenPressed(new InstantCommand(() -> ledDriver.set(-0.77))); - Nate
+        // btnLED.whenPressed(new InstantCommand(() -> ledDriver.set(-0.75))); - Thomas
+        
+        
+
+
+
+
+
+
+        // btnLED.whenPressed(new InstantCommand(() -> ledDriver.set(-0.87))); - Allie :)
+        // btnLED.whenPressed(new InstantCommand(() -> ledDriver.set(-0.93))); - Clementine
+        // btnLED.whenPressed(new InstantCommand(() -> ledDriver.set(-0.75))); - Zara
+        // btnLED.whenPressed(new InstantCommand(() -> ledDriver.set(-0.61))); - Augie
+
+
+
+
+
+        // btnLED.whenPressed(
+        //         new InstantCommand(
+        //         () -> ledDriver.set(-0.59)
+        //     )
+        // ); - Ben
+
+
+
+
+
+        // btnLED.whenPressed(new InstantCommand(() -> ledDriver.set(-0.89)));-Jack
+
+        //btnLED.whenPressed(new InstantCommand(() -> ledDriver.set(-0.87))); - Owen K
+
+
+
+
+
+
+
+
 
         btnWinch.whenPressed(new InstantCommand(() -> climbSubsystem.setWinchMotors(1), climbSubsystem));
         btnWinch.whenReleased(new InstantCommand(() -> climbSubsystem.setWinchMotors(0), climbSubsystem));
